@@ -7,9 +7,9 @@
 </head>
 <body>
     <div id="container">
-    	<?php
+    	<?php session_start(); 
     	
-    		$login = new \view\Login();
+    		$login = new Login();
 
 			switch($_SERVER['QUERY_STRING']) {
 				
@@ -26,7 +26,7 @@
 
 						$remember = "Your login is stored for later use.";
 					}
-			
+					
 					$error = $login->checkEmpty($username, $password);
 					
 					if(!empty($error)) {
@@ -39,6 +39,7 @@
 					if($login->checkLogin($username, $password)) {
 						
 						echo "Logged in. $remember<br/><br/><a href='?logout'>Logout</a>";
+						$_SESSION['login::auth'] = true;
 
 					} else {
 						
@@ -50,13 +51,13 @@
 			
 				case "logout":
 
-					unset($_COOKIE['username']);
-					unset($_COOKIE['password']);
 					setcookie("username", "", time() - 3600);
 					setcookie("password", "", time() - 3600);
 
 					echo "Logged out.<br/>";
 					echo $login->generateForm("?login");
+					
+					session_destroy();
 
 					break;
 					
@@ -64,10 +65,23 @@
 
 				if(isset($_COOKIE['username']) && isset($_COOKIE['password'])) {
 
-	    			$login->checkLogin($_COOKIE['username'], $_COOKIE['password']);
-	    			echo "Logged in by stored information in cookies.<br/><br/><a href='?logout'>Logout</a>";
+	    			if($login->checkLogin($_COOKIE['username'], $_COOKIE['password'])) {
+	    				echo "Logged in by stored information in cookies.<br/><br/><a href='?logout'>Logout</a>";
+	    			}
+					else {
+						echo "Wrong information in cookies";
+						setcookie("username", "", time() - 3600);
+						setcookie("password", "", time() - 3600);
+					}
 	    			exit();
 	    		}
+	
+				if(isset($_SESSION['login::auth'])) {
+
+					echo "Welcome, Mr.Bond<br/><br/><a href='?logout'>Logout</a>";
+					exit();
+					
+				}
 
 	    		echo $login->generateForm("?login");
 			}
