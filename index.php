@@ -4,47 +4,52 @@
 <head>
     <link rel="Stylesheet" href="../css/style.css" />
     <title>Laboration 1 Login</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 </head>
 <body>
     <div id="container">
-    	<?php session_start(); 
+		<?php session_start();
+
+			setlocale(LC_ALL, sv_SE);
     	
     		$login = new Login();
 
-			switch($_SERVER['QUERY_STRING']) {
+			switch($_SERVER["QUERY_STRING"]) {
 				
 				case "login":
 
 					$remember = "";	
-					$username = $_POST['username'];
-					$password = $_POST['password'];
+					$username = $_POST["username"];
+					$password = $_POST["password"];
+					$error = $login->checkEmpty($username, $password);
 
-					if(isset($_POST['remember'])) {
+					if(isset($_SESSION["login_auth"])) {
+
+						echo "You are already logged in.<br/><br/><a href='?logout'>Logout</a>";
+					}
+
+					else if(isset($_POST["remember"])) {
 
 						setcookie("username", $username, time() + 3600);
 						setcookie("password", md5($password), time() + 3600);
 
 						$remember = "Your login is stored for later use.";
 					}
-					
-					$error = $login->checkEmpty($username, $password);
-					
-					if(!empty($error)) {
+
+					else if(!empty($error)) {
 						
-						echo $error;
-						echo $login->generateForm("?login", $username, $password);
-						exit();
-					}
-					
-					if($login->checkLogin($username, $password)) {
+						echo $error . "<br/><br/>";
+						echo $login->generateForm("?login", $username);
+
+					} else if($login->checkLogin($username, md5($password))) {
 						
-						echo "Logged in. $remember<br/><br/><a href='?logout'>Logout</a>";
-						$_SESSION['login::auth'] = true;
+						echo "Admin is logged in.<br/><br/>Login successful. $remember<br/><br/><a href='?logout'>Logout</a><br/>";
+						$_SESSION["login_auth"] = rand(1,99999);
 
 					} else {
 						
-						echo "Username or password is invalid!<br/>";
-						echo $login->generateForm("?login");
+						echo "Username or password is invalid!<br/><br/>";
+						echo $login->generateForm("?login", $username);
 					}
 
 					break;
@@ -57,35 +62,38 @@
 					echo "Logged out.<br/>";
 					echo $login->generateForm("?login");
 					
-					session_destroy();
+					unset($_SESSION["login_auth"]);
 
 					break;
 					
 				default: 
 
-				if(isset($_COOKIE['username']) && isset($_COOKIE['password'])) {
+	    		if(isset($_SESSION["login_auth"])) {
 
-	    			if($login->checkLogin($_COOKIE['username'], $_COOKIE['password'])) {
-	    				echo "Logged in by stored information in cookies.<br/><br/><a href='?logout'>Logout</a>";
-	    			}
-					else {
+					echo "Admin is logged in.<br/><br/><a href='?logout'>Logout</a><br/>";	
+
+				} else if(isset($_COOKIE["username"]) && isset($_COOKIE["password"])) {
+
+	    			if($login->checkLogin($_COOKIE["username"], $_COOKIE["password"])) {
+
+	    				echo "Logged in by stored information in cookies.<br/><br/><a href='?logout'>Logout</a><br/>";
+
+	    			} else {
+
 						echo "Wrong information in cookies";
 						setcookie("username", "", time() - 3600);
 						setcookie("password", "", time() - 3600);
 					}
-	    			exit();
+
+				} else {
+
+					echo "Not logged in.<br/><br/>";
+	    			echo $login->generateForm("?login");
 	    		}
-	
-				if(isset($_SESSION['login::auth'])) {
-
-					echo "Welcome, Mr.Bond<br/><br/><a href='?logout'>Logout</a>";
-					exit();
-					
-				}
-
-	    		echo $login->generateForm("?login");
 			}
-    	?>
+
+			echo "<br/>" . strftime("%A, den %e %B år %Y. Klockan är [%T]") . "<br/>"; 
+		?>
    	</div>
 </body>
 </html>

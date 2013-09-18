@@ -2,17 +2,19 @@
 
 class Login {
 
-	private $admin = "oskar";
-	private $adminpass = "e99a18c428cb38d5f260853678922e03";
+	private $admin = "Admin";
+	private $adminpass = "dc647eb65e6711e155375218212b3964";
 	
 	public function generateForm($action, $user = "", $pass = "") {
 		
-		return "<form action='$action' method='post'>
+		return "<fieldset><legend>Login - Please type in username and password</legend>
+		<form action='$action' method='post'>
 		Username: <input type='text' name='username' value='$user' /><br/>
 		Password: <input type='password' name='password' value='$pass' /><br/>
 		Remember me: <input type='checkbox' name='remember' value='1' /><br />
 		<input type='submit' value='Login' />
 	</form>
+	</fieldset>
 		";
 	}
 	
@@ -32,6 +34,6 @@ class Login {
 
 	public function checkLogin($user, $pass) {
 
-		return $user == $this->admin && md5($pass) == $this->adminpass;
+		return $user == $this->admin && $pass == $this->adminpass;
 	}
 }
