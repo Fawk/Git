@@ -6,76 +6,96 @@ class Login {
 
 	private static $admin = "Admin";
 	private static $adminpass = "dc647eb65e6711e155375218212b3964";
-	private static $errorSessionKey = "login::error";
 	private static $authSessionKey = "login::auth";
+	private static $usernameCookieKey = "username";
+	private static $passwordCookieKey = "password";
 
-	public function __construct() {
-
-		$_SESSION[self::$errorSessionKey] = false;
-	}
-
+	/**
+	* @param String - username
+	* @param String - password
+	* @return boolean - was the login info correct?
+	*/
 	public function checkLogin($user, $pass) {
 
-		$missing = $this->checkEmpty($user, $pass);
-
-		if($missing === false) {
-
-			return $user == self::$admin && $pass == self::$adminpass;
-		}
-
-		return $missing;
+		return $user == self::$admin && md5($pass) == self::$adminpass;
 	}
 
+	/**
+	* @param String - username
+	* @param String - password
+	* @return String - if either was missing else returns empty string
+	*/
 	public function checkEmpty($user, $pass) {		
 		
-		$msg = false;
+		$msg = "";
 
 		if(empty($user) || preg_match('/\s/', $user)) {
-			 $msg = "Username is missing!"; 
+			 $msg = "USERNAME_MISSING"; 
 		}
 		else if(empty($pass)) {
-			 $msg = "Password is missing!"; 
+			 $msg = "PASSWORD_MISSING"; 
 		}
 
 		return $msg;
 	}
 
+	/**
+	* Sets the auth session used to determine if a user is logged in
+	*/
 	public function setAuthSession() {
 
 		$_SESSION[self::$authSessionKey] = rand(1,99999);	
 	}
 
+	/**
+	* Unsets the auth session
+	*/
 	public function unsetAuthSession() {
 
 		unset($_SESSION[self::$authSessionKey]);
 	}
 
+	/**
+	* @return boolean - is the user logged in?
+	*/
 	public function isAuthed() {
 
 		return isset($_SESSION[self::$authSessionKey]);
 	}
 
+	/**
+	* @param String - username
+	* @param String - password
+	* @param int - cookie alivetime
+	* Sets a cookie with user info if it doesn't exist, otherwise removes it
+	*/
 	public function setLoginCookies($username = "", $password = "", $cookieLength = 0) {
 
 		if($this->loginCookieStored()) {
 
-			setcookie("username", "", time() - 3600);
-			setcookie("password", "", time() - 3600);
+			setcookie(self::$usernameCookieKey, "", time() - 3600);
+			setcookie(self::$passwordCookieKey, "", time() - 3600);
 
 		} else {
 
-			setcookie("username", $username, time() + $cookieLength);
-			setcookie("password", $password, time() + $cookieLength);	
+			setcookie(self::$usernameCookieKey, $username, time() + $cookieLength);
+			setcookie(self::$passwordCookieKey, $password, time() + $cookieLength);	
 		}
 	}
 
+	/**
+	* @return boolean - Is a login cookie stored?
+	*/
 	public function loginCookieStored() {
 
-		return isset($_COOKIE["username"]) && isset($_COOKIE["password"]);
+		return isset($_COOKIE[self::$usernameCookieKey]) && isset($_COOKIE[self::$passwordCookieKey]);
 	}
 
+	/**
+	* @return boolean - Is the login cookie valid?
+	*/
 	public function loginCookieValid() {
 
-		return $_COOKIE["username"] == self::$admin && $_COOKIE["password"] == self::$adminpass;
+		return $_COOKIE[self::$usernameCookieKey] == self::$admin && $_COOKIE[self::$passwordCookieKey] == self::$adminpass;
 	}
 }

@@ -1,13 +1,34 @@
 <?php
 
+require_once("./model/Message.php");
+
 class LoginView {
 
+	/**
+	* @var String - all below
+	*/
 	private static $loginKey = "login";
 	private static $logoutKey = "logout";
+	private static $usernameFieldKey = "username";
+	private static $passwordFieldKey = "password";
+	private static $rememberFieldKey = "remember";
 
-	public function generateForm($action, $user = "") {
+	/**
+	* @param String - key for message constant
+	* @return String from constant
+	*/
+	private function getMessageFromEnum($key) {
 
-		echo "<form action='$action' method='post' class='login'>
+		return constant('Message::' . $key);
+	}
+
+	/**
+	* @param String - username to input into form if password was missing
+	* Writes out an HTML form
+	*/
+	public function generateForm($user = "") {
+
+		echo "<form action='?" . self::$loginKey ."' method='post' class='login'>
 		<p>
 			<label for='login'>Username:</label>
 			<input type='text' id='login' name='username' value='$user' />
@@ -25,36 +46,65 @@ class LoginView {
 		<br/><br/>";
 	}
 
+	/**
+	* @return String - user input username
+	*/
+	public function getUser() {
+
+		return $_POST[self::$usernameFieldKey];
+	}
+
+	/**
+	* @return String - user input password
+	*/
+	public function getPassword() {
+
+		return $_POST[self::$passwordFieldKey];
+	}
+
+	/**
+	* @return boolean - if user wants to login
+	*/
 	public function isLoggingIn() {
 
 		return isset($_GET[self::$loginKey]);
 	}
 
+	/**
+	* @return boolean - if user wants to logout
+	*/
 	public function isLoggingOut() {
 
 		return isset($_GET[self::$logoutKey]);
 	}
 
-	public function handleMessage($msg, $isError = false) {
+	/**
+	* @param String - key for constant message
+	* @param boolean - is message error?
+	* Writes out an HTML message
+	*/
+	public function handleMessage($key, $isError = false) {
 
+		$msg = $this->getMessageFromEnum($key);
 		$class = "";
 		$isError ? $class = "error" : $class = "message";
 
 		echo "<div class='$class'>$msg</div><br/><br/>";
 	}
 
+	/**
+	* @return boolean - did user check the remember box?
+	*/
 	public function userSavedLogin() {
 
-		return isset($_POST["remember"]);
+		return isset($_POST[self::$rememberFieldKey]);
 	}
 
+	/**
+	* Writes out a HTML logout link
+	*/
 	public function generateLogout() {
 
-		echo "<a href='?logout'>Logout</a><br/><br/>";
-	}
-
-	public function generateReturnLink() {
-
-		echo "<a href='?'>Return to login</a>";
+		echo "<a class='transition' href='?logout'>Logout</a><br/><br/>";
 	}
 }

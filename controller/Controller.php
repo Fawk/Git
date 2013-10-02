@@ -10,6 +10,9 @@ class Controller {
 	private $cookieLength;
 	private $userName;
 
+	/**
+	* @param integer - cookie alivetime in seconds
+	*/
 	public function __construct($cookieLength) {
 
 		$this->login = new Login();
@@ -18,86 +21,94 @@ class Controller {
 		$this->handleInput();
 	}
 
+	/**
+	* The main handle function which is started at each page call
+	*/
 	private function handleInput() {
 
-		if($this->loginView->isLoggingIn()) {
+		try {
 
-			try {
+			if($this->loginView->isLoggingIn() && !$this->login->isAuthed()) {
 
-				$username = $_POST["username"];
-				$password = $_POST["password"];
-				$this->userName = $username;
-
-				$result = $this->login->checkLogin($username, md5($password));
+				$this->handleLogin();
 				
-				if($result === false) {
-
-					$this->loginView->handleMessage("Wrong username or password", true);
-					$this->loginView->generateForm("?login");
-
-				} elseif($result === true) {
-					
-					$this->login->setAuthSession();
-					$this->loginView->handleMessage("Successful login.");
-
-					if($this->loginView->userSavedLogin()) {
-
-						$this->login->setLoginCookies($username, md5($password), $this->cookieLength);
-						$this->loginView->handleMessage("Your login has been saved.");
-					}
-
-					$this->loginView->generateLogout();
-
-				} else {
-
-					$this->loginView->handleMessage($result, true);
-					$this->loginView->generateForm("?login");
-				}
-
-			} catch (Exception $ex) {
-
-			}
-		} 
-
-		elseif($this->loginView->isLoggingOut()) {
-
-			try {
+			} elseif($this->loginView->isLoggingOut() && $this->login->isAuthed()) {
 
 				$this->login->unsetAuthSession();
-				$this->loginView->handleMessage("Logged out.");
+				$this->loginView->handleMessage("LOGGED_OUT");
 				$this->login->setLoginCookies();
-				$this->loginView->generateForm("?login");
-
-			} catch(Exception $ex) {
-
-
-			}
-
-		} else {
-
-			if($this->login->isAuthed()) {
-
-				$this->loginView->handleMessage("Admin is logged in.");
-				$this->loginView->generateLogout();
-
-			} elseif($this->login->loginCookieStored()) {
-
-				if($this->login->loginCookieValid()) {
-
-					$this->loginView->handleMessage("Logged in by using cookies.");
-					$this->loginView->generateLogout();
-
-				} else {
-
-					$this->loginView->handleMessage("Information in cookies was invalid.", true);
-					$this->loginView->generateForm("?login");
-				}
+				$this->loginView->generateForm();
 
 			} else {
 				
-				$this->loginView->generateForm("?login", $this->userName);
-			}
+				if($this->login->isAuthed()) {
+
+					$this->loginView->handleMessage("ADMIN_LOGGED");
+					$this->loginView->generateLogout();
+
+				} elseif($this->login->loginCookieStored()) {
+
+					if($this->login->loginCookieValid()) {
+
+						$this->loginView->handleMessage("COOKIES_LOGGED");
+						$this->loginView->generateLogout();
+						$this->login->setAuthSession();
+
+					} else {
+
+						$this->loginView->handleMessage("COOKIES_INVALID", true);
+						$this->loginView->generateForm();
+					}
+
+				} else {
+					
+					$this->loginView->generateForm($this->userName);
+				}
+			}			
+		} catch (Exception $ex) {
+
 		}
 	}
+
+	/**
+	* Function to handle a login call and determine if user is elligable or not
+	*/
+	private function handleLogin() {
+
+		$this->userName = $this->loginView->getUser();
+		$password = $this->loginView->getPassword();
+
+		$EmptyError = $this->login->checkEmpty($this->userName, $password);
+					
+		if(!empty($EmptyError)) {
+
+			$this->loginView->handleMessage($EmptyError, true);
+			$this->loginView->generateForm($this->userName);
+
+		} else {
+
+			if($this->login->checkLogin($this->userName, $password)) {
+						
+				$this->login->setAuthSession();
+
+				if($this->loginView->userSavedLogin()) {
+
+					$this->login->setLoginCookies($this->userName, md5($password), $this->cookieLength);
+					$this->loginView->handleMessage("SUCCESS_COOKIES");
+
+				} else {
+
+					$this->loginView->handleMessage("SUCCESS");
+				}
+
+				$this->loginView->generateLogout();
+
+			} else {
+
+				$this->loginView->handleMessage("INVALID_CRED", true);
+				$this->loginView->generateForm();
+			}
+		}
+	} 
 }
 
