@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="sv-se">
 <head>
-	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
     <title>Laboration 1 Login</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 </head>
@@ -17,9 +17,9 @@
 			<div id="Date"></div>
   			<ul>
 				<li id="hours"></li>
-			    <li id="point">:</li>
+			    <li class="point">:</li>
 			    <li id="min"></li>
-			    <li id="point">:</li>
+			    <li class="point">:</li>
 			    <li id="sec"></li>
   			</ul>
 		</div>

@@ -51,7 +51,7 @@ ul li {
     text-shadow: 0 0 5px #00c6ff;
 }
 
-#point {
+.point {
     position: relative;
     -moz-animation: mymove 1s ease infinite;
     -webkit-animation: mymove 1s ease infinite;

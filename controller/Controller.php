@@ -5,9 +5,24 @@ require_once("./view/LoginView.php");
 
 class Controller {
 
+	/**
+	* @var Login
+	*/
 	private $login;
+
+	/**
+	* @var LoginView
+	*/
 	private $loginView;
+
+	/**
+	* @var integer
+	*/
 	private $cookieLength;
+
+	/**
+	* @var String
+	*/
 	private $userName;
 
 	/**
@@ -58,6 +73,7 @@ class Controller {
 
 						$this->loginView->handleMessage("COOKIES_INVALID", true);
 						$this->loginView->generateForm();
+						$this->login->setLoginCookies();
 					}
 
 				} else {
