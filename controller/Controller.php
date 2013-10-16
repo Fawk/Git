@@ -2,6 +2,7 @@
 
 require_once("./model/Login.php");
 require_once("./view/LoginView.php");
+require_once("./model/ClientInfo.php");
 
 class Controller {
 
@@ -14,6 +15,11 @@ class Controller {
 	* @var LoginView
 	*/
 	private $loginView;
+
+	/**
+	* @var ClientInfo
+	*/
+	private $clientInfo;
 
 	/**
 	* @var integer
@@ -33,6 +39,7 @@ class Controller {
 		$this->login = new Login();
 		$this->loginView = new LoginView();
 		$this->cookieLength = $cookieLength;
+		$this->clientInfo = new ClientInfo();
 		$this->handleInput();
 	}
 
@@ -43,31 +50,31 @@ class Controller {
 
 		try {
 
-			if($this->loginView->isLoggingIn() && !$this->login->isAuthed()) {
+			if($this->loginView->isLoggingIn() && !$this->login->isAuthed($this->clientInfo)) {
 
 				$this->handleLogin();
 				
-			} elseif($this->loginView->isLoggingOut() && $this->login->isAuthed()) {
+			} elseif($this->loginView->isLoggingOut() && $this->login->isAuthed($this->clientInfo)) {
 
-				$this->login->unsetAuthSession();
+				$this->login->unsetAuthSession($this->clientInfo);
 				$this->loginView->handleMessage("LOGGED_OUT");
 				$this->login->setLoginCookies();
 				$this->loginView->generateForm();
 
 			} else {
 				
-				if($this->login->isAuthed()) {
+				if($this->login->isAuthed($this->clientInfo)) {
 
 					$this->loginView->handleMessage("ADMIN_LOGGED");
 					$this->loginView->generateLogout();
 
 				} elseif($this->login->loginCookieStored()) {
 
-					if($this->login->loginCookieValid()) {
+					if($this->login->loginCookieValid($this->clientInfo)) {
 
 						$this->loginView->handleMessage("COOKIES_LOGGED");
 						$this->loginView->generateLogout();
-						$this->login->setAuthSession();
+						$this->login->setAuthSession($this->clientInfo);
 
 					} else {
 
@@ -105,7 +112,7 @@ class Controller {
 
 			if($this->login->checkLogin($this->userName, $password)) {
 						
-				$this->login->setAuthSession();
+				$this->login->setAuthSession($this->clientInfo);
 
 				if($this->loginView->userSavedLogin()) {
 

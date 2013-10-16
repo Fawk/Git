@@ -107,4 +107,9 @@ class LoginView {
 
 		echo "<a class='transition' href='?logout'>Logout</a><br/><br/>";
 	}
+
+	public function getUserInfo()
+	{
+
+	}
 }

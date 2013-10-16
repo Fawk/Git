@@ -10,7 +10,7 @@
     <div id="container">
 		<?php
 		
-    		$loginController = new Controller(3600);
+    		$loginController = new Controller(120);
 
 		?>
 		<div class="clock">
