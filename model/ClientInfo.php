@@ -2,6 +2,9 @@
 
 class ClientInfo {
 
+	/**
+	* @var string - all below
+	*/
 	private $agent;
 	private $ip;
 	private $sessionKey = "login::auth";
@@ -13,17 +16,29 @@ class ClientInfo {
 		$this->ip = $_SERVER["REMOTE_ADDR"];
 	}
 
+	/**
+	* @param string
+	* @return boolean - if cookiedata already existed in file
+	*/
 	public function isExistsAndValid($cookiedata)
 	{
 		return $this->compareFileValues($cookiedata, "cookie");
 	}
 
+	/**
+	* @return boolean - if session existed and was valid
+	* Loads the file and fowards the content
+	*/
 	public function isSessionValid()
 	{
 		$data = file_get_contents($this->sessionFileLocation);
 		return $this->compareFileValues($data, "session");
 	}
 
+	/**
+	* @return int
+	* Returns key in array if it existed, otherwise -1
+	*/
 	private function getSessionFileKeyIfExists()
 	{
 		$data = file_get_contents($this->sessionFileLocation);
@@ -44,6 +59,11 @@ class ClientInfo {
 		return -1;
 	}
 
+	/**
+	* @param int
+	* @return string
+	* Returns a string of data from the session file without the applied key if it exists.
+	*/
 	private function returnSessionListWithoutKey($key)
 	{
 		$data = file_get_contents($this->sessionFileLocation);
@@ -72,6 +92,9 @@ class ClientInfo {
 		return $data;
 	}
 
+	/**
+	* Add relevent row to the session file
+	*/
 	public function setSession()
 	{
 		$data = "";
@@ -88,6 +111,9 @@ class ClientInfo {
 		file_put_contents($this->sessionFileLocation, $newdata);
 	}
 
+	/**
+	* Removes relevant row from the session file
+	*/
 	public function unsetSession()
 	{
 		$key = $this->getSessionFileKeyIfExists();
@@ -97,6 +123,12 @@ class ClientInfo {
 		file_put_contents($this->sessionFileLocation, $data);
 	}
 
+	/**
+	* @param string
+	* @param string
+	* @return boolean - if the comparement was true on all occasions
+	* Compares the saved values in file towards the applied values from client
+	*/
 	private function compareFileValues($filedata, $which)
 	{
 		$data = explode("\r\n", $filedata);

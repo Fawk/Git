@@ -44,6 +44,7 @@ class Login {
 	}
 
 	/**
+	* @param ClientInfo
 	* Sets the auth session used to determine if a user is logged in
 	*/
 	public function setAuthSession(ClientInfo $info) {
@@ -54,6 +55,7 @@ class Login {
 	}
 
 	/**
+	* @param ClientInfo
 	* Unsets the auth session
 	*/
 	public function unsetAuthSession(ClientInfo $info) {
@@ -64,6 +66,7 @@ class Login {
 	}
 
 	/**
+	* @param ClientInfo
 	* @return boolean - is the user logged in?
 	*/
 	public function isAuthed(ClientInfo $info) {
@@ -149,6 +152,7 @@ class Login {
 	}
 
 	/**
+	* @param ClientInfo
 	* @return boolean - Is the login cookie valid?
 	*/
 	public function loginCookieValid(ClientInfo $info) {
