@@ -1,15 +1,20 @@
+﻿<?php require_once("Controller/MemberController.php"); require_once("Model/MemberList.php"); require_once("View/MemberView.php") ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="sv-se">
 <head>
-    <title>B�tklubben Piraten</title>
+<meta charset='utf-8' />
+    <title>Båtklubben Piraten</title>
+    <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
     <div id="container">
         <?php
 
-        $controller = new MemberController();
-            
+            $controller = new MemberController();
+ 
         ?>
     </div>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+    <script src="/js/System.js"></script>
 </body>
 </html>
