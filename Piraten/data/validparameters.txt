@@ -1,0 +1,1 @@
+månad,dag,år,båttyp,längd,ålder,förnamn,efternamn,medlemsnummer

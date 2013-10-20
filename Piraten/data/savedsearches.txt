@@ -1,0 +1,6 @@
+478918 år=1990
+446563 ålder=>20
+498886 ålder=>24
+675463 ålder=<30
+727127 medlemsnummer=1
+487240 medlemsnummer=2

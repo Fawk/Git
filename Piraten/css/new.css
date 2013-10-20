@@ -1,0 +1,73 @@
+﻿body
+{
+    background-color:#333;
+    font-size:16px;
+}
+#images
+{
+    font-family: 'Handlee', cursive;
+}
+#images img
+{
+    -webkit-border-radius:10px;
+    border-radius:10px;
+}
+#images a
+{
+    position:relative;
+    -webkit-border-radius:10px;
+    border-radius:10px;
+    background-color:#fff;
+    padding:10px;
+    font-size:1.5em;
+    float:left;
+    text-decoration:none;
+    -webkit-transform:rotate(-10deg) scale(0.5);
+    -webkit-transition:all 1s;
+    transform:rotate(-10deg) scale(0.5);
+    transition:all 1s;
+    margin-right:-250px;
+    -webkit-box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.5);
+}
+#images a:hover
+{
+    -webkit-transform:rotate(0deg) scale(1.0);
+    transform:rotate(0deg) scale(1.0);
+    z-index:1000;
+}
+#images a:focus
+{
+    -webkit-transform:rotate(0deg) scale(1.0);
+    transform:rotate(0deg) scale(1.0);
+    z-index:1000;
+}
+#images a:after
+{
+    content: attr(title);
+    text-align:center;
+    display:block;
+    margin:10px 0 0 0;
+}
+#images a:nth-child(2n+1)
+{
+    position:relative;
+    -webkit-transform:rotate(7deg) scale(0.5);
+    -webkit-transition:all 1s;
+    transform:rotate(7deg) scale(0.5);
+    transition:all 1s;
+    -webkit-box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.5);
+}
+#images a:nth-child(2n+1):hover
+{
+    -webkit-transform:rotate(0deg) scale(1.0);
+    transform:rotate(0deg) scale(1.0);
+    z-index:1000;
+}
+#images a:nth-child(2n+1):focus
+{
+    -webkit-transform:rotate(0deg) scale(1.0);
+    transform:rotate(0deg) scale(1.0);
+    z-index:1000;
+}

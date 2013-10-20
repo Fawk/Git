@@ -1,7 +1,8 @@
 ﻿<?php
 
-require_once("./Model/Member.php");
 require_once("./View/MemberView.php");
+require_once("./Model/MemberList.php");
+require_once("./Model/Search.php");
 
 /**
  * MemberController short summary.
@@ -13,44 +14,81 @@ require_once("./View/MemberView.php");
  */
 class MemberController
 {
-    private static $memberView;
+    private $view;
+    private $search;
+    private $model;
+    private $message;
     
     public function __construct()
     {
-        $this->memberView = new MemberView();
+        $this->view = new MemberView();
+        $this->model = new MemberList($this->view);
+        $this->model->LoadMembers();
+        $this->search = new Search($this->model);
+        $this->message = new Message();
         $this->handleInput();
     }
     
     private function handleInput()
-    {
-        if($this->memberView->addMember())
+    {   
+        try
         {
-            $this->memberView->validateMemberInfo();
-        }
-        
-        if($this->memberView->editMember())
-        {
-            $id = $this->memberView->getId();
-            
-        }
-        
-        if($this->memberView->deleteMember())
-        {
-            $id = $this->memberView->getId();
-            if(Member::DeleteMember($id))
+            if($this->view->viewMember())
             {
-                $this->memberView->handleMessage("SUCCESS_DELETE");
-            } 
-            else 
+                $this->view->generateHeader();
+            }
+            if($this->view->addMember())
             {
-                $this->memberView->handleMessage("MEMBER_MISSING", true);
+                $this->model->AddMember();
+                $this->view->printMessage($this->message->fetchMessage(8));
+            }
+            if($this->view->deleteMember())
+            {
+                $this->model->DeleteMember();
+                $this->view->printMessage($this->message->fetchMessage(3));
+            }
+            if($this->view->editMember())
+            {
+                $this->model->EditMember();
+                $this->view->printMessage($this->message->fetchMessage(9));
+            }
+            if($this->view->addBoat())
+            {
+                $this->model->AddBoat();
+                $this->view->printMessage($this->message->fetchMessage(10));
+            }
+            if($this->view->editBoat())
+            {
+                $this->model->EditBoat();
+                $this->view->printMessage($this->message->fetchMessage(13));
+            }
+            if($this->view->deleteBoat())
+            {
+                $this->model->DeleteBoat();
+                $this->view->printMessage($this->message->fetchMessage(11));
+            }
+            if($this->view->viewMember())
+            {
+                $this->model->ViewMember();
             }
         }
-        
-        if($this->memberView->listMembers())
+        catch(Exception $e)
         {
-            $list = Member::GenerateMemberList();
-            $this->memberView->DisplayMemberList($list);
+            $this->view->printMessage($this->message->fetchMessage($e->getMessage() + 0));
+        }
+        
+        if(!$this->view->viewMember())
+        {
+            if($this->view->doesUserWantSimpleList())
+            {
+                $this->view->generateListHeader();
+                $this->view->MemberList($this->model->GetMemberList(), true);
+            }
+            else
+            {
+                $this->view->generateListHeader();
+                $this->view->MemberList($this->model->GetMemberList());
+            }
         }
     }
 }

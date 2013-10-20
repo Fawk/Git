@@ -1,5 +1,7 @@
 ﻿<?php
 
+require_once("Boat.php");
+
 /**
  * Member short summary.
  *
@@ -10,128 +12,111 @@
  */
 class Member
 {
-    private $uniqueId;
+    private $id;
     private $firstname;
     private $lastname;
     private $ssnumber;
-    private $boats = array();
-    private $userName;
-    private $password;
-    private static $fileLocation = "./members.json";
+    public $boats = array();
     
-    public function __construct($fname, $lname, $snumber)
+    public function __construct($fname = "", $lname = "", $snumber = "", $boats = array())
     {
-        $this->uniqueId = $this->AddMemberToFile();
+        if(strlen($fname) < 2 || strlen($fname) > 15)
+        {
+            $e = new Exception("6");
+            throw $e;
+        }
+        elseif(strlen($lname) < 2 || strlen($lname) > 25)
+        {
+            $e = new Exception("7");
+            throw $e;
+        }
+        elseif(!preg_match("/^\d{8,8}-\d{4,4}$/", $snumber))
+        {
+            $e = new Exception("5");
+            throw $e;
+        }
+        
         $this->firstname = $fname;
         $this->lastname = $lname;
         $this->ssnumber = $snumber;
-        $this->userName = $this->createUser();
-        $this->password = $this->createPassword();
+        $this->boats = $boats;
     }
     
-    public function getUnique()
+    public function setId($id)
     {
-        return $this->uniqueId;
+        $this->id = $id;
     }
     
-    public function getFirstName()
+    public function getId()
+    {
+        return $this->id;
+    }
+    
+    public function getFirstname()
     {
         return $this->firstname;
     }
     
-    public function getLastName()
+    public function getLastname()
     {
         return $this->lastname;
     }
     
-    public function getSocialNumber()
+    public function getSocial()
     {
         return $this->ssnumber;
     }
-    
-    public function getBoats()
+
+    public function isSame(Member $other)
     {
-        return $this->boats;
+        return $this->id == $other->getId();
     }
     
-    private function OpenFileStream($type)
+    public function getNextBoatId()
     {
-        return fopen(self::$fileLocation, $type);
-    }
-    
-    public static function GenerateMemberList()
-    {
-        $fr = $this->OpenFileStream('r');
-        $decoded = json_decode($fr, true);
-        fclose($fr);
-        
-        return $decoded;
-    }
-    
-    public static function DeleteMember($id)
-    {
-        if($this->DoesMemberExist($id))
+        $id = 0;
+        if(count($this->boats) != 0)
         {
-            $f = $this->OpenFileStream('r+');
-            $list = json_decode($f, true);
-            $spliced = array_splice($list, $id, 1);           
-            ftruncate($f, 0);
-            $encoded = json_encode($spliced);
-            fwrite($f, $encoded);
-            fclose($f);
-            return true;
-        }      
-        return false;
+            foreach($this->boats as $boat)
+            {
+                if($boat->getId() > $id)
+                    $id = $boat->getId();
+            }
+        }
+        return $id + 1;
     }
     
-    public static function EditMember($id)
+    public function Edit(Member $other)
     {
-        
+        $this->firstname = $other->getFirstname();
+        $this->lastname = $other->getLastname();
+        $this->ssnumber = $other->getSocial();
     }
     
-    private function DoesMemberExist($id)
+    public function EditBoat(Boat $otherboat)
     {
-        $decoded = self::GenerateMemberList();
-       
-        return array_key_exists($id, $decoded);
-    }
-
-    private function ReturnNextAvailableId()
-    {
-        $decoded = self::GenerateMemberList();
-        !empty($decoded) ? $id = count($decoded) : $id = 0;      
-        fclose($fr);
-        
-        return $id;
+        foreach($this->boats as $boat)
+        {
+            if($boat->isSame($otherboat))
+            {
+                $boat->setBoatType($otherboat->getType());
+                $boat->setLength($otherboat->getLength());
+            }
+        }
+        $e = new Exception("12");
+        throw $e;
     }
     
-    private function AddMemberToFile()
+    public function DeleteBoat(Boat $otherboat)
     {
-        $id = $this->ReturnNextAvailableId();
-    
-        $userArray = array($id, $this->firstname, $this->lastname, $this->ssnumber, $this->userName, $this->password); 
-        $encoded = json_encode($userArray);
-
-        $fw = $this->OpenFileStream('r+');
-        fwrite($fw, $encoded);
-        fclose($fw);
-        
-        return $id;
-    }
-    
-    public function AddBoat(Boat $boat)
-    {
-        $this->boats[] = $boat;
-    }
-    
-    private function createUser()
-    {
-        return substr($this->firstname, 0, 3) + substr($this->lastname, 0, 3);
-    }
-    
-    private function createPassword()
-    {
-        $rand = new Random(1, 999);
-        return substr($this-firstname, -2, 2) + $rand;
+        foreach($this->boats as $key => $boat)
+        {
+            if($boat->isSame($otherboat))
+            {
+                unset($this->boats[$key]);
+            }   
+        }
+        $e = new Exception("12");
+        throw $e;
     }
 }
