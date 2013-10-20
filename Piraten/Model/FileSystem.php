@@ -53,7 +53,7 @@ class FileSystem
     
     /**
      * Saves the current MemberList to file
-     * @param MemberList $memberList
+     * @param Array<Member>
      */
     public function saveMembers($list)
     {
