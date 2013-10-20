@@ -93,18 +93,22 @@ class Member
         $this->ssnumber = $other->getSocial();
     }
     
-    public function EditBoat(Boat $otherboat)
+    public function GetBoat($id)
     {
         foreach($this->boats as $boat)
         {
-            if($boat->isSame($otherboat))
-            {
-                $boat->setBoatType($otherboat->getType());
-                $boat->setLength($otherboat->getLength());
-            }
+            if($boat->getId() == $id)
+                return $boat;
         }
         $e = new Exception("12");
         throw $e;
+    }
+    
+    public function EditBoat(Boat $otherboat)
+    {
+        $boat = $this->GetBoat($otherboat->getId());        
+        $boat->setBoatType($otherboat->getType());
+        $boat->setLength($otherboat->getLength());
     }
     
     public function DeleteBoat(Boat $otherboat)
@@ -114,6 +118,7 @@ class Member
             if($boat->isSame($otherboat))
             {
                 unset($this->boats[$key]);
+                return;
             }   
         }
         $e = new Exception("12");

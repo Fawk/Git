@@ -30,7 +30,7 @@ class Boat
      */
     public function __construct($id, $boattype = 0, $len = 0)
     {
-        $this->id = $id;
+        $this->id = $id + 0;
         $this->boatType = $boattype;
         $this->length = $len;
     }

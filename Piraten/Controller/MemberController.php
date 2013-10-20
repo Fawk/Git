@@ -67,9 +67,23 @@ class MemberController
                 $this->model->DeleteBoat();
                 $this->view->printMessage($this->message->fetchMessage(11));
             }
-            if($this->view->viewMember())
+            if($this->view->viewMember() && !$this->view->deleteMember() && !$this->view->editMember())
             {
-                $this->model->ViewMember();
+                if($this->view->userWantsToEditBoat())
+                {
+                    $this->model->ViewMember(false, true);
+                }
+                else
+                {
+                    if($this->view->userWantsToEditMember())
+                    {
+                        $this->model->ViewMember(true);
+                    }
+                    else
+                    {
+                        $this->model->ViewMember(false);
+                    }
+                }
             }
         }
         catch(Exception $e)
@@ -77,7 +91,7 @@ class MemberController
             $this->view->printMessage($this->message->fetchMessage($e->getMessage() + 0));
         }
         
-        if(!$this->view->viewMember())
+        if(!$this->view->viewMember() || $this->view->deleteMember())
         {
             if($this->view->doesUserWantSimpleList())
             {
@@ -88,6 +102,13 @@ class MemberController
             {
                 $this->view->generateListHeader();
                 $this->view->MemberList($this->model->GetMemberList());
+            }
+        }
+        else
+        {
+            if($this->view->editMember())
+            {
+                $this->model->ViewMember();
             }
         }
     }

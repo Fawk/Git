@@ -121,7 +121,7 @@ class MemberView
         echo $str;
     }
 
-    public function displaySpecificMember(Member $member, $isEdit = false, $isBoatedit = false)
+    public function displaySpecificMember(Member $member, $isEdit = false)
     {
         $str = "<div>";
         if($isEdit) $str .= "<form action='/" . self::$editMemberKeySimple . $member->getId() . "' method='post' id='editmemberform'>";
@@ -138,7 +138,7 @@ class MemberView
             $str .= "<p>" . $member->getSocial() . "</p>";
         }
         $str .= "</div>";
-                
+
         if(count($member->boats) > 0) {
             foreach($member->boats as $boat)
             {
@@ -197,7 +197,7 @@ class MemberView
     
     public function displayBoatEditView(Member $member, Boat $boat)
     {
-        $str = "<h3>Redigerar båt $boatid för medlemsnummer: $id</h3>";
+        $str = "<h3>Redigerar båt " . $boat->getId() ."  för medlemsnummer: " . $member->getId() . "</h3>";
         $str .= "<form action='/" . self::$editBoatKeySimple . $member->getId() . "/" . $boat->getId() . "' method='post'>";
         $ref = new ReflectionClass("BoatType");
         $constants = $ref->getConstants();
@@ -248,8 +248,8 @@ class MemberView
     public function generateListHeader()
     {
         $str = "<div class='listheader'>";
-        $str .= "<a href='/" . self::$memberListKeySimple . "'>Fullständig lista</a> - ";
-        $str .= "<a href='/" . self::$memberListKeySimple . "/" . self::$memberListSmallKey . "'>Enkel lista</a>";
+        $str .= "<a href='/'>Fullständig lista</a> - ";
+        $str .= "<a href='/" . self::$memberListSmallKey . "'>Enkel lista</a>";
         $str .= "</div>";
         echo $str;
     }
@@ -281,7 +281,11 @@ class MemberView
     
     public function editMember()
     {
-        return isset($_GET[self::$editMemberKey]) && isset($_GET[self::$idKey]);
+        return isset($_GET[self::$editMemberKey]) && 
+               isset($_GET[self::$idKey]) && 
+               isset($_POST[self::$firstNameEditKey]) &&
+               isset($_POST[self::$lastNameEditKey]) &&
+               isset($_POST[self::$SocialNumberEditKey]);
     }
     
     public function deleteMember()
@@ -357,6 +361,11 @@ class MemberView
         return isset($_GET[self::$memberListSmallKey]);
     }
     
+    public function userWantsToEditBoat()
+    {
+        return isset($_GET[self::$editBoatFormKeySimple]) && isset($_GET[self::$boatIdKey]) && isset($_GET[self::$idKey]);
+    }
+    
     public function isUserSearching()
     {
         return isset($_GET[self::$userIsSearchingKey]) && isset($_GET[self::$searchQueryKey]);
@@ -376,8 +385,8 @@ class MemberView
     {
         return isset($_GET[self::$editBoatKey]) && 
                isset($_GET[self::$boatIdKey]) && 
-               isset($_GET[self::$boatLengthKey]) &&
-               isset($_GET[self::$boatTypeKey]) &&
+               isset($_POST[self::$boatLengthKey]) &&
+               isset($_POST[self::$boatTypeKey]) &&
                isset($_GET[self::$idKey]);
     }
     

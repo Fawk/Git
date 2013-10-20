@@ -55,10 +55,8 @@ class FileSystem
      * Saves the current MemberList to file
      * @param MemberList $memberList
      */
-    public function saveMembers(MemberList $memberList)
+    public function saveMembers($list)
     {
-        $list = $memberList->GetMemberList();
-        
         $returnlist = array();
         
         foreach($list as $member)
