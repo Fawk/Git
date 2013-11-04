@@ -2,7 +2,7 @@
 
 	init: function() {
 
-	    $("#formadd").submit(function () {
+	    $(".form").submit(function () {
 
 	        $(".formerror").text("");
 
