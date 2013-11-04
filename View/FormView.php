@@ -390,7 +390,7 @@ class FormView
                     <div class='formbody'>
                     <div class='successmessage'></div>
                     <div class='formerror'>$this->errorMessage</div>
-                        <form action='?" . $action . "' method='post' id='$id'>
+                        <form action='?" . $action . "' method='post' id='$id' class='form'>
                             <label for='title'>
                                 Titel för formuläret:
                                 <input type='text' id='title' name='" . self::$formTitleKey . "' placeholder='Skriv titel här' size='60' title='Var god fyll i titel' value='" . $formtitle . "' />
