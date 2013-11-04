@@ -2,7 +2,6 @@
 
 require_once("FileSystem.php");
 require_once("Form.php");
-require_once("SessionInfo.php");
 
 /**
  * FormHandler short summary.

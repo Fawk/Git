@@ -1,6 +1,5 @@
 <?php
 
-require_once("./Model/Form.php");
 require_once("./View/FormView.php");
 require_once("./Model/FormHandler.php");
 
