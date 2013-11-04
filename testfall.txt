@@ -1,0 +1,44 @@
+﻿# Testfall 1 #
+Navigera till sidan.
+Logga in med uppgifterna: Admin, Password
+-> Lyckad inloggning
+
+# Testfall 2 #
+Tryck på Skapa formulär
+Ange en titel över 5 tecken men under 50
+Ange beskrivning över 50 tecken men under 500
+Tryck på Spara
+-> Formuläret sparades
+
+# Testfall 3 #
+Tryck på det skapade formuläret
+Tryck på redigera formulär
+Lägg till ett fält
+Ange titel och beskrivning för fältet
+Sätt fältet till obligatoriskt
+Spara formuläret
+->Formuläret sparades
+
+# Testfall 4 #
+Tryck på formuläret
+Skriv in text i fältet på formuläret
+Tryck på Svara
+->Svaret registrerades
+
+# Testfall 5 #
+Tryck på formuläret
+Tryck på Visa Svar
+Observera att ditt svar finns i listan
+
+# Testfall 6 #
+Ta bort formuläret
+->Formuläret togs bort utan problem
+
+# Testfall 7 #
+Logga ut ifrån Admin
+Registrera en ny användare med valfria uppgifter
+->Registringen lyckades
+
+# Testfall 8 #
+Logga in med den skapade användaren
+->Lyckad inloggning
