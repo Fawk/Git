@@ -38,6 +38,7 @@ class Controller {
 
 		$this->login = new Login();
 		$this->loginView = new LoginView();
+		$this->login->attach($this->loginView);
 		$this->cookieLength = $cookieLength;
 		$this->clientInfo = new ClientInfo();
 		$this->handleInput();
@@ -48,49 +49,60 @@ class Controller {
 	*/
 	private function handleInput() {
 
-		try {
+		if($this->loginView->isLoggingIn() && !$this->login->isAuthed($this->clientInfo)) {
 
-			if($this->loginView->isLoggingIn() && !$this->login->isAuthed($this->clientInfo)) {
+			$this->handleLogin();
+			
+		} elseif($this->loginView->isLoggingOut() && $this->login->isAuthed($this->clientInfo)) {
 
-				$this->handleLogin();
-				
-			} elseif($this->loginView->isLoggingOut() && $this->login->isAuthed($this->clientInfo)) {
+			if($this->loginView->loginCookieStored()) {
+				$this->loginView->setLoginCookies();
+			}
 
-				$this->login->unsetAuthSession($this->clientInfo);
-				$this->loginView->handleMessage("LOGGED_OUT");
-				$this->login->setLoginCookies();
-				$this->loginView->generateForm();
+			$this->login->unsetAuthSession($this->clientInfo);
+			$this->login->setLoginCookies();
+			$this->login->setState(0);
+			$this->loginView->generateForm();
 
-			} else {
-				
-				if($this->login->isAuthed($this->clientInfo)) {
+		} else {
+			
+			if($this->login->isAuthed($this->clientInfo)) {
 
-					$this->loginView->handleMessage("ADMIN_LOGGED");
-					$this->loginView->generateLogout();
+				$this->login->setState(1);
+				$this->loginView->generateLogout();
 
-				} elseif($this->login->loginCookieStored()) {
+			} elseif($this->loginView->loginCookieStored()) {
 
-					if($this->login->loginCookieValid($this->clientInfo)) {
+				if($this->loginView->loginCookieValid($this->clientInfo)) {
 
-						$this->loginView->handleMessage("COOKIES_LOGGED");
+					if($this->login->checkLogin(
+						$this->loginView->getCookieUser(), 
+						$this->loginView->getCookiePassword(), 
+						true)) {
+
+						$this->login->setState(2);
 						$this->loginView->generateLogout();
 						$this->login->setAuthSession($this->clientInfo);
 
 					} else {
-
-						$this->loginView->handleMessage("COOKIES_INVALID", true);
+						
+						$this->login->setState(3, true);
+						$this->loginView->setLoginCookies();
 						$this->loginView->generateForm();
-						$this->login->setLoginCookies();
 					}
 
 				} else {
-					
-					$this->loginView->generateForm($this->userName);
-				}
-			}			
-		} catch (Exception $ex) {
 
-		}
+					$this->loginView->generateForm();
+					$this->login->setLoginCookies();
+					$this->loginView->setLoginCookies();
+				}
+
+			} else {
+				
+				$this->loginView->generateForm($this->userName);
+			}
+		}			
 	}
 
 	/**
@@ -101,12 +113,21 @@ class Controller {
 		$this->userName = $this->loginView->getUser();
 		$password = $this->loginView->getPassword();
 
-		$EmptyError = $this->login->checkEmpty($this->userName, $password);
-					
-		if(!empty($EmptyError)) {
+		$EmptyError = $this->loginView->checkEmpty($this->userName, $password);
+		
+		if($EmptyError != -1)
+		{
+			switch($EmptyError)
+			{
+				case 0:
+					$this->login->setState(4, true);
+					break;
+				case 1:
+					$this->login->setState(5, true);
+					break;
+			}
 
-			$this->loginView->handleMessage($EmptyError, true);
-			$this->loginView->generateForm($this->userName);
+				$this->loginView->generateForm($this->userName);
 
 		} else {
 
@@ -116,19 +137,20 @@ class Controller {
 
 				if($this->loginView->userSavedLogin()) {
 
+					$this->loginView->setLoginCookies($this->cookieLength);
 					$this->login->setLoginCookies($this->userName, md5($password), $this->cookieLength);
-					$this->loginView->handleMessage("SUCCESS_COOKIES");
+					$this->login->setState(7);
 
 				} else {
 
-					$this->loginView->handleMessage("SUCCESS");
+					$this->login->setState(7);
 				}
 
 				$this->loginView->generateLogout();
 
 			} else {
 
-				$this->loginView->handleMessage("INVALID_CRED", true);
+				$this->login->setState(8, true);
 				$this->loginView->generateForm();
 			}
 		}

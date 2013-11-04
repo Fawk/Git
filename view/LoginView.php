@@ -1,8 +1,9 @@
 <?php
 
-require_once("./model/Message.php");
+require_once("Message.php");
+require_once("./model/LoginObserver.php");
 
-class LoginView {
+class LoginView implements LoginObserver {
 
 	/**
 	* @var String - all below
@@ -12,15 +13,9 @@ class LoginView {
 	private static $usernameFieldKey = "username";
 	private static $passwordFieldKey = "password";
 	private static $rememberFieldKey = "remember";
-
-	/**
-	* @param String - key for message constant
-	* @return String from constant
-	*/
-	private function getMessageFromEnum($key) {
-
-		return constant('Message::' . $key);
-	}
+	private static $usernameCookieKey = "username";
+	private static $passwordCookieKey = "password";
+	private static $cookieFileLocation = "./40221345130b5d464279e518446f69ae.txt";
 
 	/**
 	* @param String - username to input into form if password was missing
@@ -44,6 +39,30 @@ class LoginView {
 			<p class='login-submit'><button type='submit' class='login-button'>Login</button></p>
 		</form>
 		<br/><br/>";
+	}
+
+	/**
+	* update function from LoginObserver
+	*/
+	public function update($subject) {
+
+		$msg = new Message();
+
+		if($subject->getState() == 7) {
+
+			$extra = "";
+			if($this->userSavedLogin()) {
+
+				$extra = "<br/><br/>" . $msg->fetchMessage(6);
+			}
+				
+				$this->handleMessage($msg->fetchMessage($subject->getState()) . $extra);
+
+		}
+		else {
+
+			$this->handleMessage($msg->fetchMessage($subject->getState()), $subject->isError());
+		}
 	}
 
 	/**
@@ -79,13 +98,13 @@ class LoginView {
 	}
 
 	/**
-	* @param String - key for constant message
+	* @param String - msg - the message
 	* @param boolean - is message error?
 	* Writes out an HTML message
 	*/
-	public function handleMessage($key, $isError = false) {
+	public function handleMessage($msg, $isError = false) {
 
-		$msg = $this->getMessageFromEnum($key);
+		//$msg = $this->getMessageFromEnum($key);
 		$class = "";
 		$isError ? $class = "error" : $class = "message";
 
@@ -108,8 +127,63 @@ class LoginView {
 		echo "<a class='transition' href='?logout'>Logout</a><br/><br/>";
 	}
 
-	public function getUserInfo()
-	{
+	public function setLoginCookies($cookieLength = 0) {
+		
+		if($this->loginCookieStored()) {
 
+			setcookie(self::$usernameCookieKey, "", time() - 3600);
+			setcookie(self::$passwordCookieKey, "", time() - 3600);
+
+		} else {
+
+			setcookie(self::$usernameCookieKey, $this->getUser(), time() + $cookieLength);
+			setcookie(self::$passwordCookieKey, sha1($this->getPassword()), time() + $cookieLength);	
+		}
+	}
+
+	/**
+	* @return boolean - Is a login cookie stored?
+	*/
+	public function loginCookieStored() {
+
+		return isset($_COOKIE[self::$usernameCookieKey]) && isset($_COOKIE[self::$passwordCookieKey]);
+	}
+
+	/**
+	* @param ClientInfo
+	* @return boolean - Is the login cookie valid?
+	*/
+	public function loginCookieValid(ClientInfo $info) {
+
+		$cookiedata = file_get_contents(self::$cookieFileLocation);
+
+		return $info->isExistsAndValid($cookiedata);	
+	}
+
+	public function getCookieUser()
+	{
+		return $_COOKIE[self::$usernameCookieKey];
+	}
+
+	public function getCookiePassword()
+	{
+		return $_COOKIE[self::$passwordCookieKey];
+	}
+
+		/**
+	* @param String - username
+	* @param String - password
+	* @return String - if either was missing else returns empty string
+	*/
+	public function checkEmpty($user, $pass) {		
+		
+		if(empty($user) || preg_match('/\s/', $user)) {
+			 return 0;
+		}
+		else if(empty($pass)) {
+			 return 1;
+		}
+
+		return -1;
 	}
 }

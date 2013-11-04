@@ -2,16 +2,16 @@
 
 session_start();
 
-class Login {
+require_once("Subject.php");
+
+class Login extends Subject {
 
 	/**
 	* @var String - all below
 	*/
 	private static $admin = "Admin";
-	private static $adminpass = "dc647eb65e6711e155375218212b3964";
+	private static $adminpass = "8be3c943b1609fffbfc51aad666d0a04adf83c9d";
 	private static $authSessionKey = "login::auth";
-	private static $usernameCookieKey = "username";
-	private static $passwordCookieKey = "password";
 	private static $cookieFileLocation = "./40221345130b5d464279e518446f69ae.txt";
 
 	/**
@@ -19,28 +19,13 @@ class Login {
 	* @param String - password
 	* @return boolean - was the login info correct?
 	*/
-	public function checkLogin($user, $pass) {
+	public function checkLogin($user, $pass, $isCookie = false) {
 
-		return $user == self::$admin && md5($pass) == self::$adminpass;
-	}
-
-	/**
-	* @param String - username
-	* @param String - password
-	* @return String - if either was missing else returns empty string
-	*/
-	public function checkEmpty($user, $pass) {		
-		
-		$msg = "";
-
-		if(empty($user) || preg_match('/\s/', $user)) {
-			 $msg = "USERNAME_MISSING"; 
+		if(!$isCookie)
+		{
+			$pass = sha1($pass);
 		}
-		else if(empty($pass)) {
-			 $msg = "PASSWORD_MISSING"; 
-		}
-
-		return $msg;
+		return $user == self::$admin && $pass == self::$adminpass;
 	}
 
 	/**
@@ -91,81 +76,45 @@ class Login {
 	*/
 	public function setLoginCookies($username = "", $password = "", $cookieLength = 0) {
 
-		if($this->loginCookieStored()) {
+		$ip = $_SERVER["REMOTE_ADDR"];
+		$agent = $_SERVER["HTTP_USER_AGENT"];
 
-			setcookie(self::$usernameCookieKey, "", time() - 3600);
-			setcookie(self::$passwordCookieKey, "", time() - 3600);
+		$data = "";
 
-		} else {
+		if(filesize(self::$cookieFileLocation) > 0)
+		{
+			$data = file_get_contents(self::$cookieFileLocation);
 
-			$ip = $_SERVER["REMOTE_ADDR"];
-			$agent = $_SERVER["HTTP_USER_AGENT"];
+			$str = explode("\r\n", $data);
 
-			$data = "";
-
-			if(filesize(self::$cookieFileLocation) > 0)
+			foreach($str as $key => $value)
 			{
-				$data = file_get_contents(self::$cookieFileLocation);
-
-				$str = explode("\r\n", $data);
-
-				foreach($str as $key => $value)
+				if($value != "")
 				{
-					if($value != "")
+					$e = explode("+", $value);
+					if($e[1] == $ip && $e[2] == $agent)
 					{
-						$e = explode("+", $value);
-						if($e[1] == $ip && $e[2] == $agent)
-						{
-							unset($str[$key]);
-						}
-					}
-				}
-
-				$data = "";
-
-				foreach($str as $key => $value)
-				{
-					if($value != "")
-					{
-						$data .= $value . "\r\n";
+						unset($str[$key]);
 					}
 				}
 			}
 
-			$time = time() + $cookieLength;
-			$newdata = $data . $time . "+" . $ip . "+" . $agent . "\r\n";
+			$data = "";
 
-			file_put_contents(self::$cookieFileLocation, "");
-			file_put_contents(self::$cookieFileLocation, $newdata, FILE_APPEND);
-
-			setcookie(self::$usernameCookieKey, $username, time() + $cookieLength);
-			setcookie(self::$passwordCookieKey, $password, time() + $cookieLength);	
+			foreach($str as $key => $value)
+			{
+				if($value != "")
+				{
+					$data .= $value . "\r\n";
+				}
+			}
 		}
-	}
 
-	/**
-	* @return boolean - Is a login cookie stored?
-	*/
-	public function loginCookieStored() {
+		$time = time() + $cookieLength;
+		$newdata = $data . $time . "+" . $ip . "+" . $agent . "\r\n";
 
-		return isset($_COOKIE[self::$usernameCookieKey]) && isset($_COOKIE[self::$passwordCookieKey]);
-	}
-
-	/**
-	* @param ClientInfo
-	* @return boolean - Is the login cookie valid?
-	*/
-	public function loginCookieValid(ClientInfo $info) {
-
-		$cookiedata = file_get_contents(self::$cookieFileLocation);
-
-		if($info->isExistsAndValid($cookiedata))
-		{
-			return $_COOKIE[self::$usernameCookieKey] == self::$admin && $_COOKIE[self::$passwordCookieKey] == self::$adminpass;
-		}
-		else
-		{
-			return false;
-		}
+		file_put_contents(self::$cookieFileLocation, "");
+		file_put_contents(self::$cookieFileLocation, $newdata, FILE_APPEND);
+		
 	}
 }

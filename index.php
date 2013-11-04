@@ -9,8 +9,9 @@
 <body>
     <div id="container">
 		<?php
-		
-    		$loginController = new Controller(120);
+			
+			$cookieLength = 120; // Seconds
+    		$loginController = new Controller($cookieLength);
 
 		?>
 		<div class="clock">
