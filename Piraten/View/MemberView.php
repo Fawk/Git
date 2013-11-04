@@ -1,5 +1,7 @@
 ﻿<?php
 
+require_once("./Model/Member.php");
+
 /**
  * MemberView short summary.
  *
