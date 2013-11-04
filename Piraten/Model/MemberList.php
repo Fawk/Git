@@ -1,7 +1,6 @@
 ﻿<?php
 
 require_once("FileSystem.php");
-require_once("Message.php");
 
 /**
  * MemberList short summary.
@@ -15,12 +14,10 @@ class MemberList
 {
     private $allMembers;
     private $fileSystem;
-    private $view;
     
-    public function __construct(MemberView $view)
+    public function __construct()
     {
         $this->fileSystem = new FileSystem();
-        $this->view = $view;
     }
     
     public function LoadMembers()
@@ -33,9 +30,8 @@ class MemberList
         return $this->allMembers;
     }
     
-    public function AddMember()
+    public function AddMember(Member $member)
     {
-        $member = $this->view->getMemberFromForm(true);
         $member->setId($this->getNextId());
         $this->allMembers[] = $member;
         $this->fileSystem->saveMembers($this->allMembers);
@@ -68,24 +64,9 @@ class MemberList
         throw $e;
     }
     
-    public function ViewMember($isEdit = false, $isBoatEdit = false)
+    public function EditMember(Member $other, $id)
     {
-        $member = $this->GetMember($this->view->getId());
-        if($isBoatEdit)
-        {
-            $boat = $member->GetBoat($this->view->getBoatId());
-            $this->view->displayBoatEditView($member, $boat);
-        }
-        else
-        {
-            $this->view->displaySpecificMember($member, $isEdit);
-        }
-    }
-    
-    public function EditMember()
-    {
-        $other = $this->view->getMemberFromForm(false);
-        $m = $this->GetMember($this->view->getId());
+        $m = $this->GetMember($id);
         $other->setId($m->getId());
         foreach($this->allMembers as $member)
         {
@@ -97,9 +78,9 @@ class MemberList
         }
     }
     
-    public function DeleteMember()
+    public function DeleteMember($id)
     {
-        $other = $this->GetMember($this->view->getId());
+        $other = $this->GetMember($id);
         foreach($this->allMembers as $key => $member)
         {
             if($member->isSame($other))
@@ -110,32 +91,20 @@ class MemberList
         }
     }
     
-    public function AddBoat()
+    public function AddBoat(Member $member, Boat $boat)
     {
-        $member = $this->GetMember($this->view->getId());
-        $boat = new Boat($member->getNextBoatId(), $this->view->getBoatType(), $this->view->getBoatLength());
         $member->boats[] = $boat;
         $this->fileSystem->saveMembers($this->allMembers);
     }
     
-    public function EditBoat()
+    public function EditBoat(Member $other, Boat $boat)
     {
-        $other = $this->GetMember($this->view->getId());
-        $boat = new Boat($this->view->getBoatId(), $this->view->getBoatType(), $this->view->getBoatLength());
-        foreach($this->allMembers as $member)
-        {
-            if($member->isSame($other))
-            {
-                $member->EditBoat($boat);
-                $this->fileSystem->saveMembers($this->allMembers);
-            }
-        }
+        $other->EditBoat($boat);
+        $this->fileSystem->saveMembers($this->allMembers);
     }
     
-    public function DeleteBoat()
+    public function DeleteBoat(Member $member, Boat $boat)
     {
-        $member = $this->GetMember($this->view->getId());
-        $boat = new Boat($this->view->getBoatId(), 0, 0);
         $member->DeleteBoat($boat);
         $this->fileSystem->saveMembers($this->allMembers);        
     }

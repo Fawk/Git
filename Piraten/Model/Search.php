@@ -21,7 +21,7 @@ class Search
     public function __construct(MemberList $list)
     {
         $this->loadValidParameters();
-        $this->memberList = $list;
+        $this->memberList = $list->GetMemberList();
         $this->parameterList = array();
         $this->savedSearches = $this->loadSavedSearches();
     }
@@ -59,7 +59,7 @@ class Search
     private function loadSavedSearches()
     {
         $f = fopen(self::$savedSearchesLocation, 'a+');
-        $searches = [];
+        $searches = array();
         if(filesize(self::$savedSearchesLocation) > 0)
         {
             $data = fread($f, filesize(self::$savedSearchesLocation));
@@ -139,7 +139,7 @@ class Search
         {
             $parameters = $this->getSavedSearchByKey($test);
         }
-        
+
         if($this->isValidList($parameters))
         {
             if(strpos($parameters, "_") > -1)
@@ -173,7 +173,6 @@ class Search
             
             if($this->checks != 0)
                 $this->saveSearchResult($parameters);
-
             
             return $this->GenerateResultList($this->parameterList);
         }
@@ -237,7 +236,7 @@ class Search
                 {
                     foreach($member->boats as $boat)
                     {
-                        if($boat->getBoatType($boat->getType(), false) == $value)
+                        if($boat->getBoatType() == $value)
                         {
                             $keys[] = $member;
                         }
@@ -248,7 +247,7 @@ class Search
            
             case "längd":
                 
-                $keys = array_mege($keys, $this->handleRangeValues($value, "length"));
+                $keys = array_merge($keys, $this->handleRangeValues($value, "length"));
 
                 break;
                 
@@ -317,9 +316,9 @@ class Search
         if($value > $lower && $value < $upper) {
             
             if($value < 10) $value = "0" + $value;
-            
             foreach($this->memberList as $member)
             {
+
                 if(substr($member->getSocial(), $start, $length) == "$value")
                 {
                     $keys[] = $member;
@@ -399,7 +398,7 @@ class Search
     
     private function handleString($value, $which)
     {
-        $keys = [];
+        $keys = array();
         foreach($this->memberList as $member)
         {
             if($which == "förnamn")
@@ -422,7 +421,7 @@ class Search
     
     private function GenerateResultList()
     {
-        $keys = [];
+        $keys = array();
         $repeated = array();
         foreach($this->parameterList as $member){
             if (!isset($repeated[$member->getId()])) $repeated[$member->getId()] = 0;

@@ -228,11 +228,11 @@ class MemberView
     {
         if(count($result) == 0)
         {
-            echo "Din sökning retunerade inga medlemmar!";
+            echo "<p>Din sökning retunerade inga medlemmar!</p>";
         }
         else
         {
-            echo "<pre>";
+            echo "<pre><p><p>";
             print_r($result);
         }
     }

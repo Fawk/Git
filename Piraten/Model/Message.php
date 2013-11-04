@@ -22,7 +22,8 @@ class Message
         "Båten har blivit tillagd utan problem.",
         "Båten blev borttagen utan problem!",
         "Båten som angavs fanns inte!",
-        "Båten har blivit ändrad utan problem.");
+        "Båten har blivit ändrad utan problem.",
+        "Du är inte inloggad och har bara tillgång till medlemslista. Inga andra funktioner.");
     
     /**
      * Fetches a message with applied id
@@ -41,6 +42,7 @@ class Message
      * 11 : Båten blev borttagen utan problem!
      * 12 : Båten som angavs fanns inte!
      * 13 : Båten har blivit ändrad utan problem!
+     * 14 : Du är inte inloggad och har bara tillgång till medlemslista. Inga andra funktioner.
      * @param $int - the id for the message
      */
     public function fetchMessage($int)

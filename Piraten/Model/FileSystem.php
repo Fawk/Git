@@ -20,7 +20,7 @@ class FileSystem
      */
     public function loadMembers()
     {
-        if(file_exists(self::$filePath) && filesize(self::$filePath) > 0)
+        if(file_exists(self::$filePath) && filesize(self::$filePath) > 10)
         {
             $data = file_get_contents(self::$filePath);
             
@@ -75,7 +75,7 @@ class FileSystem
             $returnlist[] = $inner;
         }
         
-        $encoded = json_encode($returnlist, JSON_UNESCAPED_UNICODE);
+        $encoded = json_encode($returnlist);
         $data = "<?php\r\n//" . $encoded;
         file_put_contents(self::$filePath, $data);
     }

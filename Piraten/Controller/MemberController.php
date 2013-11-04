@@ -3,6 +3,7 @@
 require_once("./View/MemberView.php");
 require_once("./Model/MemberList.php");
 require_once("./Model/Search.php");
+require_once("LoginController.php");
 
 /**
  * MemberController short summary.
@@ -18,11 +19,14 @@ class MemberController
     private $search;
     private $model;
     private $message;
+    private $loginController;
+    private $login;
     
     public function __construct()
     {
+        $this->loginController = new LoginController();
         $this->view = new MemberView();
-        $this->model = new MemberList($this->view);
+        $this->model = new MemberList();
         $this->model->LoadMembers();
         $this->search = new Search($this->model);
         $this->message = new Message();
@@ -31,64 +35,99 @@ class MemberController
     
     private function handleInput()
     {   
-        try
+        if($this->loginController->isAuthed())
         {
-            if($this->view->viewMember())
+            try
             {
-                $this->view->generateHeader();
-            }
-            if($this->view->addMember())
-            {
-                $this->model->AddMember();
-                $this->view->printMessage($this->message->fetchMessage(8));
-            }
-            if($this->view->deleteMember())
-            {
-                $this->model->DeleteMember();
-                $this->view->printMessage($this->message->fetchMessage(3));
-            }
-            if($this->view->editMember())
-            {
-                $this->model->EditMember();
-                $this->view->printMessage($this->message->fetchMessage(9));
-            }
-            if($this->view->addBoat())
-            {
-                $this->model->AddBoat();
-                $this->view->printMessage($this->message->fetchMessage(10));
-            }
-            if($this->view->editBoat())
-            {
-                $this->model->EditBoat();
-                $this->view->printMessage($this->message->fetchMessage(13));
-            }
-            if($this->view->deleteBoat())
-            {
-                $this->model->DeleteBoat();
-                $this->view->printMessage($this->message->fetchMessage(11));
-            }
-            if($this->view->viewMember() && !$this->view->deleteMember() && !$this->view->editMember())
-            {
-                if($this->view->userWantsToEditBoat())
+                if($this->view->viewMember())
                 {
-                    $this->model->ViewMember(false, true);
+                    $this->view->generateHeader();
                 }
-                else
+                if($this->view->isUserSearching())
                 {
-                    if($this->view->userWantsToEditMember())
+                    $members = $this->model->GetMemberList();
+                    $list = array();
+                    
+                    setlocale(LC_TIME, 'swedish');
+                    
+                    foreach($members as $member)
                     {
-                        $this->model->ViewMember(true);
+                        if((ucwords(strftime('%b', strtotime(substr($member->getSocial(), 0, 8)))) == "Mar"
+                            && $member->getFirstname == "Oskar") || $member->getLastname() == "Rogersson")
+                        {
+                            $list[] = $member;
+                        }
+                    }
+                    $this->view->displaySearchResult($list);
+                }
+                if($this->view->addMember())
+                {
+                    $this->model->AddMember($this->view->getMemberFromForm(true));
+                    $this->view->printMessage($this->message->fetchMessage(8));
+                }
+                if($this->view->deleteMember())
+                {
+                    $this->model->DeleteMember($this->view->getId());
+                    $this->view->printMessage($this->message->fetchMessage(3));
+                }
+                if($this->view->editMember())
+                {
+                    $this->model->EditMember($this->view->getMemberFromForm(false), $this->view->getId());
+                    $this->view->printMessage($this->message->fetchMessage(9));
+                }
+                if($this->view->addBoat())
+                {
+                    $member = $this->model->GetMember($this->view->getId());
+                    $boat = new Boat($member->getNextBoatId(), $this->view->getBoatType(), $this->view->getBoatLength());
+                    $this->model->AddBoat($member, $boat);
+                    $this->view->printMessage($this->message->fetchMessage(10));
+                }
+                if($this->view->editBoat())
+                {
+                    $member = $this->model->GetMember($this->view->getId());
+                    $boat = new Boat($this->view->getBoatId(), $this->view->getBoatType(), $this->view->getBoatLength());
+                    $this->model->EditBoat($member, $boat);
+                    $this->view->printMessage($this->message->fetchMessage(13));
+                }
+                if($this->view->deleteBoat())
+                {
+                    $member = $this->model->GetMember($this->view->getId());
+                    $boat = new Boat($this->view->getBoatId(), 0, 0);
+                    $this->model->DeleteBoat($member, $boat);
+                    $this->view->printMessage($this->message->fetchMessage(11));
+                }
+                if($this->view->viewMember() && !$this->view->deleteMember() && !$this->view->editMember())
+                {
+                    $member = $this->model->GetMember($this->view->getId());
+                    
+                    if($this->view->userWantsToEditBoat())
+                    {
+                        $boat = $member->GetBoat($this->view->getBoatId());
+                        $this->view->displayBoatEditView($member, $boat);
                     }
                     else
                     {
-                        $this->model->ViewMember(false);
+                        if($this->view->userWantsToEditMember())
+                        {
+                            $this->view->displaySpecificMember($member, true);
+                        }
+                        else
+                        {
+                            $this->view->displaySpecificMember($member, false);
+                        }
                     }
                 }
             }
+            catch(Exception $e)
+            {
+                $this->view->printMessage($this->message->fetchMessage($e->getMessage() + 0));
+            }
         }
-        catch(Exception $e)
+        else
         {
-            $this->view->printMessage($this->message->fetchMessage($e->getMessage() + 0));
+            $this->view->printMessage($this->message->fetchMessage(14));
+            if($this->view->viewMember() && !$this->view->deleteMember())
+                $this->view->generateHeader();
         }
         
         if(!$this->view->viewMember() || $this->view->deleteMember())
@@ -108,7 +147,7 @@ class MemberController
         {
             if($this->view->editMember())
             {
-                $this->model->ViewMember();
+                $this->view->displaySpecificMember($this->model->GetMember($this->view->getId()));
             }
         }
     }
