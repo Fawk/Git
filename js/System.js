@@ -33,7 +33,7 @@
 	        if (isvalid) {
 
 	            $.ajax({
-	                url: "?createForm",
+	                url: $(this).attr("action"),
 	                type: "post",
 	                data: $(this).serialize(),
 	                success: function (response) {
