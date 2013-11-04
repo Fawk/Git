@@ -1,0 +1,2 @@
+<?php
+//[{"id":1,"username":"Admin","password":"$2y$11$wfxLsGhJbG3X0cxyylJjf.b\/mQGTOvFEWtxgNB6qYL6JJnJ9tHYl.","ip":"127.0.0.1","agent":"Mozilla\/5.0 (Windows NT 6.2; WOW64; rv:24.0) Gecko\/20100101 Firefox\/24.0","time":1383073286},{"id":2,"username":"Test","password":"$2y$11$kowvz6aIYlyEStI0PNup5OdKadHwep4SOWbzCU.9IxOqm4rJvnjA2","ip":"127.0.0.1","agent":"Mozilla\/5.0 (Windows NT 6.2; WOW64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/30.0.1599.101 Safari\/537.36","time":1382923051}]

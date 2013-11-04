@@ -1,0 +1,3 @@
+Ladda upp hela applikation i valfri mapp på din webbserver.
+Sätt chmod 766/777 på mappen data.
+Applikation är nu klar att användas.
