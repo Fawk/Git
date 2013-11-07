@@ -69,8 +69,9 @@ class LoginView implements LoginObserver {
 	* @return String - user input username
 	*/
 	public function getUser() {
-
-		return $_POST[self::$usernameFieldKey];
+		
+		if(isset($_POST[self::$usernameFieldKey]))
+			return $_POST[self::$usernameFieldKey];
 	}
 
 	/**
@@ -78,7 +79,8 @@ class LoginView implements LoginObserver {
 	*/
 	public function getPassword() {
 
-		return $_POST[self::$passwordFieldKey];
+		if(isset($_POST[self::$passwordFieldKey]))
+			return $_POST[self::$passwordFieldKey];
 	}
 
 	/**
